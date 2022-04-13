@@ -1,0 +1,37 @@
+trigger ContactAuditTrigger on Contact (after update) {
+    List<Contact> NewContacts = new List<Contact>();
+    
+    NewContacts = trigger.new;
+   
+    for (Contact con : NewContacts){
+        apdup__Contact_Audit__c ca =new apdup__Contact_Audit__c();
+      Contact c = trigger.oldmap.get(con.ID) ; 
+        if(con.AccountId!= c.AccountId){
+            
+            ca.apdup__ModifiedBy__c=con.AccountId;
+            
+        }
+         if(con.apdup__Account_Number__c!= c.apdup__Account_Number__c){
+            
+            ca.apdup__ModifiedBy__c=ca.apdup__ModifiedBy__c+'\n ' +con.apdup__Account_Number__c;
+            
+        }
+         if(con.Phone!= c.Phone){
+            
+            ca.apdup__ModifiedBy__c=ca.apdup__ModifiedBy__c+'\n ' +con.Phone;
+            
+        }
+        if(con.ReportsToId!= c.ReportsToId){
+            
+            ca.apdup__ModifiedBy__c=ca.apdup__ModifiedBy__c+'\n ' +con.ReportsToId;
+            
+        }
+        if(con.Email!= c.Email){
+            
+            ca.apdup__ModifiedBy__c=ca.apdup__ModifiedBy__c+'\n ' +con.Email;
+            
+        }
+        insert ca;
+    }    
+
+}
