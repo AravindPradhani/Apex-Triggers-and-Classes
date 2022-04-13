@@ -1,0 +1,61 @@
+Trigger code
+
+trigger OpportunityExtensionTrigger on Opportunity (before insert, before update) {
+	list<Opportunity> opp = new list<Opportunity>();
+    if(Trigger.isInsert){
+    for (Opportunity O:trigger.new){
+        OpportunityExtensionClass.CreateExtension(O);
+    }
+        
+        }
+}
+
+
+
+
+Apex Class
+
+public class OpportunityExtensionClass {		
+    public static  void CreateExtension(Opportunity O){
+        Opportunity oppty=O;
+        
+        integer diff  ;
+        date s=oppty.apdup__Start_Date__c;
+        date e=oppty.apdup__End_Date__c;
+        diff=s.monthsBetween(e);
+        system.debug(diff);
+        
+          
+        list<apdup__Opportunity_Extension__c> OE = new list<apdup__Opportunity_Extension__c>();
+   
+        for(integer i=0 ;i<diff;i++){
+            if(i==0){
+            	apdup__Opportunity_Extension__c OpEx =new apdup__Opportunity_Extension__c(); 
+            	OpEx.apdup__Date__c=oppty.apdup__Start_Date__c;
+            	OpEx.apdup__Amount__c=oppty.Amount/diff; 
+                OpEx.apdup__OpportunityERelation__c=O.Id;
+                OpEx.apdup__Number_Of_Slots__c=i+1;
+                OpEx.apdup__OpportunityId__c=oppty.Name;
+          		  OE.add(OpEx);
+               
+            }else{
+                
+            	apdup__Opportunity_Extension__c OpEx =new apdup__Opportunity_Extension__c(); 
+           
+                    OpEx.apdup__Date__c=oppty.apdup__Start_Date__c.addMonths(i);
+           
+            	OpEx.apdup__Amount__c=oppty.Amount/diff;
+                OpEx.apdup__OpportunityERelation__c=O.Id;
+                OpEx.apdup__Number_Of_Slots__c=i+1;
+                OpEx.apdup__OpportunityId__c=oppty.Name;
+         		  OE.add(OpEx);
+            	
+            }
+        }
+        insert OE;
+    }
+    
+	
+}
+
+
